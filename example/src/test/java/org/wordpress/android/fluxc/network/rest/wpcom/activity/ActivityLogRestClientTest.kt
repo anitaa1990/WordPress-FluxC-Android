@@ -281,7 +281,9 @@ class ActivityLogRestClientTest {
                 eq(ActivitiesResponse::class.java),
                 eq(false),
                 any(),
-                eq(false))
+                eq(false),
+                any(),
+                any())
         ).thenReturn(response)
         whenever(site.siteId).thenReturn(siteId)
         return response
@@ -301,7 +303,9 @@ class ActivityLogRestClientTest {
                 eq(RewindStatusResponse::class.java),
                 eq(false),
                 any(),
-                eq(false))).thenReturn(response)
+                eq(false),
+                any(),
+                any())).thenReturn(response)
         whenever(site.siteId).thenReturn(siteId)
         return response
     }

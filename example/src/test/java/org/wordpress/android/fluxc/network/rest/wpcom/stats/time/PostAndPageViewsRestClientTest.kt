@@ -167,7 +167,9 @@ class PostAndPageViewsRestClientTest {
                         eq(kclass),
                         eq(cachingEnabled),
                         any(),
-                        eq(false)
+                        eq(false),
+                        any(),
+                        any()
                 )
         ).thenReturn(response)
         whenever(site.siteId).thenReturn(siteId)
