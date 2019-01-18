@@ -64,8 +64,14 @@ public abstract class BaseWPComRestClient {
     }
 
     protected Request add(WPComGsonRequest request, boolean addLocaleParameter) {
+        // Adds "locale=xx_XX" query parameter if the `addLocaleParameter` is true.
+        return add(request, LocaleParamName.LOCALE_PARAM_NAME_FOR_V1_ENDPOINT, addLocaleParameter);
+    }
+
+    protected Request add(WPComGsonRequest request, LocaleParamName localeParamName, boolean addLocaleParameter) {
         if (addLocaleParameter) {
-            request.addQueryParameter("locale", LanguageUtils.getPatchedCurrentDeviceLanguage(mAppContext));
+            // Add either `locale=xx_XX` or `_locale=xx_XX` parameter depending on the endpoint
+            request.addQueryParameter(localeParamName.name, getLocale());
         }
         // TODO: If !mAccountToken.exists() then trigger the mOnAuthFailedListener
         return addRequest(setRequestAuthParams(request, true));
@@ -78,7 +84,7 @@ public abstract class BaseWPComRestClient {
 
     protected Request addUnauthedRequest(AccountSocialRequest request, boolean addLocaleParameter) {
         if (addLocaleParameter) {
-            request.addQueryParameter("locale", LanguageUtils.getPatchedCurrentDeviceLanguage(mAppContext));
+            request.addQueryParameter("locale", getLocale());
             request.setOnParseErrorListener(mOnParseErrorListener);
             request.setUserAgent(mUserAgent.getUserAgent());
         }
@@ -92,7 +98,7 @@ public abstract class BaseWPComRestClient {
 
     protected Request addUnauthedRequest(WPComGsonRequest request, boolean addLocaleParameter) {
         if (addLocaleParameter) {
-            request.addQueryParameter("locale", LanguageUtils.getPatchedCurrentDeviceLanguage(mAppContext));
+            request.addQueryParameter("locale", getLocale());
         }
         return addRequest(setRequestAuthParams(request, false));
     }
@@ -115,5 +121,29 @@ public abstract class BaseWPComRestClient {
             mRequestQueue.getCache().invalidate(request.mUri.toString(), true);
         }
         return mRequestQueue.add(request);
+    }
+
+    private String getLocale() {
+        return LanguageUtils.getPatchedCurrentDeviceLanguage(mAppContext);
+    }
+
+    /**
+     * Adding a `_locale` parameter to all endpoints is a part of v2 infrastructure. However, `locale` parameter is
+     * more commonly used for v1 endpoints and have been added to all the requests up until the time of this
+     * documentation.
+     *
+     * This enum adds a more structured way to decide which locale parameter should be added. Since `_locale` is more
+     * of a v2 thing, the naming of the enums reflects that. It's definitely something we could improve upon as we
+     * start dealing with more endpoints that utilizes this enum.
+     */
+    public enum LocaleParamName {
+        LOCALE_PARAM_NAME_FOR_V1_ENDPOINT("locale"),
+        LOCALE_PARAM_FOR_V2_ENDPOINT("_locale");
+
+        public String name;
+
+        LocaleParamName(String name) {
+            this.name = name;
+        }
     }
 }
