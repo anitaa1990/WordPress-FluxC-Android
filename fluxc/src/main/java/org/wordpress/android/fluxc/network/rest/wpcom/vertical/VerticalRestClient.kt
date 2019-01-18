@@ -9,6 +9,7 @@ import org.wordpress.android.fluxc.model.vertical.VerticalModel
 import org.wordpress.android.fluxc.model.vertical.VerticalSegmentModel
 import org.wordpress.android.fluxc.network.UserAgent
 import org.wordpress.android.fluxc.network.rest.wpcom.BaseWPComRestClient
+import org.wordpress.android.fluxc.network.rest.wpcom.BaseWPComRestClient.LocaleParamName.LOCALE_PARAM_FOR_V2_ENDPOINT
 import org.wordpress.android.fluxc.network.rest.wpcom.WPComGsonRequestBuilder
 import org.wordpress.android.fluxc.network.rest.wpcom.WPComGsonRequestBuilder.Response.Error
 import org.wordpress.android.fluxc.network.rest.wpcom.WPComGsonRequestBuilder.Response.Success
@@ -41,7 +42,14 @@ constructor(
 ) : BaseWPComRestClient(appContext, dispatcher, requestQueue, accessToken, userAgent) {
     suspend fun fetchSegments(): FetchedSegmentsPayload {
         val url = WPCOMV2.segments.url
-        val response = wpComGsonRequestBuilder.syncGetRequest(this, url, emptyMap(), FetchSegmentsResponse::class.java)
+        val response = wpComGsonRequestBuilder.syncGetRequest(
+                restClient = this,
+                url = url,
+                params = emptyMap(),
+                clazz = FetchSegmentsResponse::class.java,
+                localeParamName = LOCALE_PARAM_FOR_V2_ENDPOINT,
+                addLocaleParameter = true
+        )
         return when (response) {
             is Success -> FetchedSegmentsPayload(response.data)
             is Error -> FetchedSegmentsPayload(FetchSegmentsError(GENERIC_ERROR))
@@ -52,7 +60,14 @@ constructor(
         val url = WPCOMV2.verticals.prompt.url
         val params = HashMap<String, String>()
         params[PARAM_SEGMENT_ID] = segmentId.toString()
-        val response = wpComGsonRequestBuilder.syncGetRequest(this, url, params, SegmentPromptModel::class.java)
+        val response = wpComGsonRequestBuilder.syncGetRequest(
+                restClient = this,
+                url = url,
+                params = params,
+                clazz = SegmentPromptModel::class.java,
+                localeParamName = LOCALE_PARAM_FOR_V2_ENDPOINT,
+                addLocaleParameter = true
+        )
         return when (response) {
             is Success -> FetchedSegmentPromptPayload(response.data)
             is Error -> FetchedSegmentPromptPayload(FetchSegmentPromptError(GENERIC_ERROR))
@@ -64,7 +79,14 @@ constructor(
         val params = HashMap<String, String>()
         params[PARAM_VERTICAL_SEARCH_QUERY] = searchQuery
         params[PARAM_VERTICAL_SEARCH_LIMIT] = limit.toString()
-        val response = wpComGsonRequestBuilder.syncGetRequest(this, url, params, FetchVerticalsResponse::class.java)
+        val response = wpComGsonRequestBuilder.syncGetRequest(
+                restClient = this,
+                url = url,
+                params = params,
+                clazz = FetchVerticalsResponse::class.java,
+                localeParamName = LOCALE_PARAM_FOR_V2_ENDPOINT,
+                addLocaleParameter = true
+        )
         return when (response) {
             is Success -> FetchedVerticalsPayload(response.data)
             is Error -> FetchedVerticalsPayload(FetchVerticalsError(GENERIC_ERROR))

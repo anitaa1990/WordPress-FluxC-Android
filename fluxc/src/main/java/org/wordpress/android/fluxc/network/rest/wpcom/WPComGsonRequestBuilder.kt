@@ -1,6 +1,8 @@
 package org.wordpress.android.fluxc.network.rest.wpcom
 
 import org.wordpress.android.fluxc.network.BaseRequest
+import org.wordpress.android.fluxc.network.rest.wpcom.BaseWPComRestClient.LocaleParamName
+import org.wordpress.android.fluxc.network.rest.wpcom.BaseWPComRestClient.LocaleParamName.LOCALE_PARAM_NAME_FOR_V1_ENDPOINT
 import org.wordpress.android.fluxc.network.rest.wpcom.WPComGsonRequest.WPComGsonNetworkError
 import org.wordpress.android.fluxc.network.rest.wpcom.WPComGsonRequestBuilder.Response.Error
 import org.wordpress.android.fluxc.network.rest.wpcom.WPComGsonRequestBuilder.Response.Success
@@ -44,7 +46,9 @@ class WPComGsonRequestBuilder
         clazz: Class<T>,
         enableCaching: Boolean = false,
         cacheTimeToLive: Int = BaseRequest.DEFAULT_CACHE_LIFETIME,
-        forced: Boolean = false
+        forced: Boolean = false,
+        localeParamName: LocaleParamName = LOCALE_PARAM_NAME_FOR_V1_ENDPOINT,
+        addLocaleParameter: Boolean = true
     ) = suspendCoroutine<Response<T>> { cont ->
         val request = WPComGsonRequest.buildGetRequest(url, params, clazz, {
             cont.resume(Success(it))
@@ -57,7 +61,7 @@ class WPComGsonRequestBuilder
         if (forced) {
             request.setShouldForceUpdate()
         }
-        restClient.add(request)
+        restClient.add(request, localeParamName, addLocaleParameter)
     }
 
     /**
